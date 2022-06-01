@@ -6,7 +6,7 @@
 /*   By: stapioca <stapioca@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/26 18:37:40 by stapioca          #+#    #+#             */
-/*   Updated: 2022/04/26 18:37:41 by stapioca         ###   ########.fr       */
+/*   Updated: 2022/04/28 19:52:21 by stapioca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,4 +37,12 @@ int	ft_atoi(const char *str)
 	if (sign == -1)
 		nb = ~nb + 1;
 	return (nb);
+}
+
+long long	get_time(void)
+{
+	struct timeval	t;
+
+	gettimeofday(&t, NULL);
+	return ((t.tv_sec * 1000) + (t.tv_usec / 1000));
 }

@@ -21,14 +21,14 @@ LIST = $(WAY)Philosophers.c \
 
 OBJS = $(patsubst %.c,%.o,$(LIST))
 
-FLAGS = -Wall -Wextra -Werror
+FLAGS = -Wall -Wextra -Werror -fsanitize=thread -g
 
 .PHONY : all clean fclean re
 
 all : $(NAME) $(HEADER)
 
 $(NAME) : $(OBJS)
-	CC $(OBJS) -I $(HEADER) -o $@
+	CC $(FLAGS) $(OBJS) -I $(HEADER) -o $@
 
 %.o : %.c $(HEADER)
 	CC $(FLAGS) -c $< -o $@ -I ${HEADER}
