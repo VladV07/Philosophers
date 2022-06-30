@@ -17,21 +17,23 @@ WAY = philo/
 HEADER = $(WAY)Philosophers.h
 
 LIST = $(WAY)Philosophers.c \
-		$(WAY)unit.c
+		$(WAY)unit.c \
+		$(WAY)do_philo.c \
+		$(WAY)monitor_death.c
 
 OBJS = $(patsubst %.c,%.o,$(LIST))
 
-FLAGS = -Wall -Wextra -Werror -fsanitize=thread -g
+FLAGS = -Wall -Wextra -fsanitize=thread -g
 
 .PHONY : all clean fclean re
 
 all : $(NAME) $(HEADER)
 
 $(NAME) : $(OBJS)
-	CC $(FLAGS) $(OBJS) -I $(HEADER) -o $@
+	cc $(FLAGS) $(OBJS) -I $(HEADER) -o $@
 
 %.o : %.c $(HEADER)
-	CC $(FLAGS) -c $< -o $@ -I ${HEADER}
+	cc $(FLAGS) -c $< -o $@ -I ${HEADER}
 
 clean :
 	@rm -f $(OBJS)
