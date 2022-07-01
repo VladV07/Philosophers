@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   unit_do_philo.c                                    :+:      :+:    :+:   */
+/*   do_philo.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vlad <vlad@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: stapioca <stapioca@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/27 20:02:40 by vlad              #+#    #+#             */
-/*   Updated: 2022/06/27 20:19:21 by vlad             ###   ########.fr       */
+/*   Updated: 2022/07/01 19:35:18 by stapioca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Philosophers.h"
 
-void	protected_get_time(void *arg)
+t_main	*protected_get_time(void *arg)
 {
 	t_main	*dt;
 
@@ -20,6 +20,7 @@ void	protected_get_time(void *arg)
 	pthread_mutex_lock(&dt->data->mutex_main);
 	dt->philo->t_start = get_time();
 	pthread_mutex_unlock(&dt->data->mutex_main);
+	return (dt);
 }
 
 void	mutex_forks(void *arg)
@@ -27,32 +28,72 @@ void	mutex_forks(void *arg)
 	t_main	*dt;
 
 	dt = (t_main *)arg;
+	pthread_mutex_lock(&dt->data->mutex_main);
 	if (dt->philo->nb_ph != dt->data->nb_of_ph)
 	{
+		pthread_mutex_unlock(&dt->data->mutex_main);
 		pthread_mutex_lock(&dt->data->mutex_forks[dt->philo->lf]);
-		philo_print(dt, "do_philo: Phil has taken a l fork.");
+		philo_print(dt, "has taken a fork");
 		pthread_mutex_lock(&dt->data->mutex_forks[dt->philo->rf]);
-		philo_print(dt, "do_philo: Phil has taken a r fork.");
+		philo_print(dt, "has taken a fork");
 	}
 	else
 	{
+		pthread_mutex_unlock(&dt->data->mutex_main);
 		pthread_mutex_lock(&dt->data->mutex_forks[dt->philo->rf]);
-		philo_print(dt, "do_philo: Phil has taken a r fork.");
+		philo_print(dt, "has taken a fork");
 		pthread_mutex_lock(&dt->data->mutex_forks[dt->philo->lf]);
-		philo_print(dt, "do_philo: Phil has taken a l fork.");
+		philo_print(dt, "has taken a fork");
 	}
 }
 
-void	ft_eat(t_main *dt)
+int	ft_eat(t_main *dt)
 {
-	philo_print(dt, "do_philo: Phil eat.");
-	usleep(dt->data->time_to_eat * 1000);
+	int	i;
+
+	i = 0;
+	philo_print(dt, "is eating");
+	pthread_mutex_lock(&dt->data->mutex_main);
+	dt->philo->step++;
+	dt->philo->t_start_eat = get_time();
+	while ((get_time() - dt->philo->t_start_eat) < dt->data->time_to_eat)
+	{
+		if (dt->data->stop != 0)
+		{
+			pthread_mutex_unlock(&dt->data->mutex_main);
+			return (i);
+		}
+		pthread_mutex_unlock(&dt->data->mutex_main);
+		i++;
+		usleep(300);
+		pthread_mutex_lock(&dt->data->mutex_main);
+	}
+	pthread_mutex_unlock(&dt->data->mutex_main);
+	return (i);
 }
 
-void	ft_sleep(t_main *dt)
+int	ft_sleep(t_main *dt)
 {
-	philo_print(dt, "do_philo: Phil sleep.");
-	usleep(dt->data->time_to_sleep * 1000);
+	int	i;
+
+	i = 0;
+	philo_print(dt, "is sleeping");
+	pthread_mutex_lock(&dt->data->mutex_main);
+	dt->philo->t_start_sleep = get_time();
+	while ((get_time() - dt->philo->t_start_sleep) < dt->data->time_to_sleep)
+	{
+		if (dt->data->stop != 0)
+		{
+			pthread_mutex_unlock(&dt->data->mutex_main);
+			return (i);
+		}
+		pthread_mutex_unlock(&dt->data->mutex_main);
+		i++;
+		usleep(300);
+		pthread_mutex_lock(&dt->data->mutex_main);
+	}
+	pthread_mutex_unlock(&dt->data->mutex_main);
+	return (i);
 }
 
 void	*do_philo(void *arg)
@@ -63,25 +104,21 @@ void	*do_philo(void *arg)
 	dt->philo->step = 0;
 	dt->philo->end_eat = 0;
 	if (dt->philo->nb_ph % 2 == 0)
-		usleep(2000);
+		usleep(1000);
+	protected_get_time(arg);
+	pthread_mutex_lock(&dt->data->mutex_main);
 	while (dt->data->stop == 0)
 	{
-		protected_get_time(arg);
+		pthread_mutex_unlock(&dt->data->mutex_main);
 		mutex_forks(arg);
 		ft_eat(dt);
 		pthread_mutex_unlock(&dt->data->mutex_forks[dt->philo->rf]);
 		pthread_mutex_unlock(&dt->data->mutex_forks[dt->philo->lf]);
 		protected_get_time(arg);
 		ft_sleep(dt);
-		philo_print(dt, "do_philo: Philo thinking.");
+		philo_print(dt, "is thinking");
 		pthread_mutex_lock(&dt->data->mutex_main);
-		dt->philo->step++;
-		pthread_mutex_unlock(&dt->data->mutex_main);
-		pthread_mutex_lock(&dt->data->mutex_main);
-		if (dt->data->stop == 0)
-			printf("%lld %d %s %lld\n", get_time() - dt->data->t_start_main, \
-						dt->philo->nb_ph, "do_philo: step= ", dt->philo->step);
-		pthread_mutex_unlock(&dt->data->mutex_main);
 	}
+	pthread_mutex_unlock(&dt->data->mutex_main);
 	return (NULL);
 }

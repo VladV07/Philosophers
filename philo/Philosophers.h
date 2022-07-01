@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Philosophers.h                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vlad <vlad@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: stapioca <stapioca@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/20 19:09:12 by stapioca          #+#    #+#             */
-/*   Updated: 2022/06/27 22:48:51 by vlad             ###   ########.fr       */
+/*   Updated: 2022/07/01 01:36:26 by stapioca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,11 @@ typedef struct s_philosopher
 	int				rf;
 	pthread_t		pt;
 	long long int	t_start;
+	long long int	t_start_eat;
+	long long int	t_start_sleep;
 	long long int	step;
 	int				end_eat;
+	pthread_mutex_t	mutex_philo;
 }	t_philo;
 
 typedef struct s_stract
@@ -40,7 +43,7 @@ typedef struct s_stract
 	int				time_to_eat;
 	int				time_to_sleep;
 	int				nb_of_times_each_ph_must_eat;
-	pthread_mutex_t	mutex_forks[201];
+	pthread_mutex_t	mutex_forks[202];
 	pthread_mutex_t	mutex_main;
 	pthread_mutex_t	mutex_philo;
 	long long int	t_start_main;
@@ -58,13 +61,13 @@ typedef struct s_philosopher_args
 	t_data		*data;
 }	t_main;
 
-int			ft_atoi(const char *str);
+int			ft_get(const char *str);
 long long	get_time(void);
 void		philo_print(t_main *dt, char *str);
-void		protected_get_time(void *arg);
+t_main		*protected_get_time(void *arg);
 void		mutex_forks(void *arg);
-void		ft_eat(t_main *dt);
-void		ft_sleep(t_main *dt);
+int			ft_eat(t_main *dt);
+int			ft_sleep(t_main *dt);
 void		*do_philo(void *arg);
 void		*monitor_death(void *arg);
 

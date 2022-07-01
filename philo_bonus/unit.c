@@ -5,12 +5,12 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: stapioca <stapioca@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/04/26 18:37:40 by stapioca          #+#    #+#             */
-/*   Updated: 2022/06/30 14:35:31 by stapioca         ###   ########.fr       */
+/*   Created: 2022/07/01 21:14:58 by stapioca          #+#    #+#             */
+/*   Updated: 2022/07/01 22:01:14 by stapioca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Philosophers.h"
+#include "philosophers.h"
 
 int	ft_get(const char *str)
 {
@@ -42,7 +42,47 @@ int	ft_get(const char *str)
 long long	get_time(void)
 {
 	struct timeval	t;
+	long long		now;
 
-	gettimeofday(&t, NULL);
-	return ((t.tv_sec * 1000) + (t.tv_usec / 1000));
+	gettimeofday (&t, NULL);
+	now = ((t.tv_sec * 1000) + (t.tv_usec / 1000));
+	return (now);
+}
+
+void	ft_usleep(long long time)
+{
+	long long	start;
+
+	start = get_time();
+	while (get_time() - start < time)
+		usleep(100);
+}
+
+int	err_print(int code)
+{
+	if (code == 1)
+		printf("wrong number of arguments.\n");
+	else if (code == 2)
+		printf("arguments are not correct.\n");
+	else if (code == 3)
+		printf("malloc allocation error.\n");
+	else if (code == 4)
+		printf("semafor creation error.\n");
+	else if (code == 5)
+		printf("fork error.\n");
+	else if (code == 6)
+		printf("failed to create the thread.\n");
+	else if (code == 7)
+		printf("failed to join the thread.\n");
+	return (1);
+}
+
+void	ft_free(t_philo *dt)
+{
+	sem_unlink("print");
+	sem_unlink("fork");
+	sem_close(dt->sem_print);
+	sem_close(dt->sem_fork);
+	free(dt->pid);
+	free(dt);
 }

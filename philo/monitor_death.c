@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   monitor_death.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vlad <vlad@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: stapioca <stapioca@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/27 22:48:08 by vlad              #+#    #+#             */
-/*   Updated: 2022/06/27 23:09:51 by vlad             ###   ########.fr       */
+/*   Updated: 2022/07/01 19:37:41 by stapioca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ void	*monitor_death(void *arg)
 	dt = (t_main *)arg;
 	while (1)
 	{
-		usleep(500);
+		usleep(333);
 		pthread_mutex_lock(&dt->data->mutex_main);
 		i = 0;
 		dt->data->count_eat = 0;
@@ -56,8 +56,8 @@ void	*monitor_death(void *arg)
 		if (dt->data->stop != 0)
 		{
 			if (dt->data->stop == 1)
-				printf("%d monitor_death: DEATH, time = %d\n", \
-						dt->data->nb_ph_die, dt->data->time_die);
+				printf("%lld %d %s\n", get_time() - dt->data->t_start_main, \
+					dt->philo->nb_ph, "died");
 			pthread_mutex_unlock(&dt->data->mutex_main);
 			return (NULL);
 		}
